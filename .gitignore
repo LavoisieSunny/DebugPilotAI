@@ -1,0 +1,32 @@
+# Python Virtual Environment
+venv/
+ENV/
+env/
+.env
+
+# Python Caching & Compilation
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.qodo/
+
+# Integrated Development Environments (IDEs)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Operating System Files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Local Extraction Artifacts & Output
+generate_pdf.py
+find_script.py
+extracted_script.txt

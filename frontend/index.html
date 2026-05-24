@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebugPilot AI - SRE Copilot & Failure Detection</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js and Marked.js for Premium Charts & Markdown RCA Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Premium Neon Ambient Background Gradients -->
+    <div class="ambient-glow glow-violet"></div>
+    <div class="ambient-glow glow-rose"></div>
+    
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header glass-card">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-robot fa-bounce icon-glow"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>DebugPilot <span class="badge-ai">AI</span></h1>
+                    <p class="subtitle">Autonomous SRE Copilot & Reliability System</p>
+                </div>
+            </div>
+            
+            <!-- Global Telemetry Status -->
+            <div class="header-metrics">
+                <div class="metric-pill" id="system-status-pill">
+                    <span class="status-indicator ping-green"></span>
+                    <span class="pill-label">System Health:</span>
+                    <span class="pill-value text-green" id="health-value">Healthy</span>
+                </div>
+                <div class="metric-pill">
+                    <i class="fa-solid fa-wave-square text-violet"></i>
+                    <span class="pill-label">MTTD:</span>
+                    <span class="pill-value" id="mttd-value">&lt; 15s</span>
+                </div>
+                <div class="metric-pill">
+                    <i class="fa-solid fa-clock-rotate-left text-teal"></i>
+                    <span class="pill-label">MTTR:</span>
+                    <span class="pill-value" id="mttr-value">4.2m</span>
+                </div>
+                <div class="metric-pill">
+                    <i class="fa-solid fa-server text-indigo"></i>
+                    <span class="pill-label">Active Connections:</span>
+                    <span class="pill-value" id="sub-value">0</span>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <button id="btn-sound-toggle" class="header-btn tooltip" data-tooltip="Toggle Alarm Sounds">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <div class="time-widget">
+                    <span id="current-utc-time">12:00:00 IST</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT GRID -->
+        <div class="main-grid">
+            
+            <!-- LEFT PANEL: CONTROL DECK & INTEGRATIONS -->
+            <aside class="sidebar-left">
+                <!-- Control Deck / Incident Injector -->
+                <section class="control-deck glass-card">
+                    <h3 class="section-title"><i class="fa-solid fa-vial-circle-check text-rose"></i> Fault Injector Deck</h3>
+                    <p class="section-desc">Trigger simulated outages to stress-test anomaly detection latency and AI RCA diagnostics.</p>
+                    
+                    <div class="injector-buttons">
+                        <button class="inject-btn" id="btn-inject-db" data-incident="db_pool_exhaustion">
+                            <span class="btn-icon"><i class="fa-solid fa-database"></i></span>
+                            <span class="btn-text">DB Pool Exhaustion</span>
+                            <span class="btn-severity tag-red">Critical</span>
+                        </button>
+                        <button class="inject-btn" id="btn-inject-pay" data-incident="payment_gateway_timeout">
+                            <span class="btn-icon"><i class="fa-solid fa-credit-card"></i></span>
+                            <span class="btn-text">Stripe Timeout</span>
+                            <span class="btn-severity tag-amber">High</span>
+                        </button>
+                        <button class="inject-btn" id="btn-inject-auth" data-incident="auth_memory_leak">
+                            <span class="btn-icon"><i class="fa-solid fa-key"></i></span>
+                            <span class="btn-text">Auth Memory Leak</span>
+                            <span class="btn-severity tag-red">Critical</span>
+                        </button>
+                        <!-- Phase 2: GraphQL Silent Anomaly Button -->
+                        <button class="inject-btn" id="btn-inject-graphql" data-incident="silent_graphql_deadlock">
+                            <span class="btn-icon"><i class="fa-solid fa-circle-question"></i></span>
+                            <span class="btn-text">Silent GraphQL Failure</span>
+                            <span class="btn-severity tag-amber">Medium</span>
+                        </button>
+                        
+                        <button class="inject-btn" id="btn-inject-traffic" data-incident="spike_traffic">
+                            <span class="btn-icon"><i class="fa-solid fa-arrow-trend-up"></i></span>
+                            <span class="btn-text">RPS Spike stress</span>
+                            <span class="btn-severity tag-violet">Warn</span>
+                        </button>
+                        
+                        <!-- Phase 2: Mock Code Deploy trigger -->
+                        <button class="inject-btn healthy-btn" id="btn-trigger-deploy" style="border-color: var(--violet); background: rgba(167, 139, 250, 0.05);">
+                            <span class="btn-icon"><i class="fa-solid fa-code-commit" style="color: var(--violet);"></i></span>
+                            <span class="btn-text" style="color: var(--violet);">Rollout Buggy Schema</span>
+                            <span class="btn-severity tag-violet">Git Deploy</span>
+                        </button>
+                        
+                        <button class="inject-btn healthy-btn active" id="btn-inject-healthy" data-incident="healthy">
+                            <span class="btn-icon"><i class="fa-solid fa-heartbeat"></i></span>
+                            <span class="btn-text">Flush & Recover System</span>
+                            <span class="btn-severity tag-green">Healthy</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Phase 2: SRE AI Prognosis forecasting Card -->
+                <section class="prognosis-card glass-card" style="border-color: rgba(45, 212, 191, 0.15); background: rgba(13, 148, 136, 0.02);">
+                    <h3 class="section-title"><i class="fa-solid fa-brain text-teal"></i> SRE AI Outage Predictor</h3>
+                    <div id="prognosis-content">
+                        <div class="prognosis-status text-green">
+                            <span class="ping-pulse"></span> <strong id="prog-title">System Stable (99.8% Reliability)</strong>
+                        </div>
+                        <p class="section-desc" id="prog-desc" style="margin-top: 6px; margin-bottom: 0;">AI is forecasting telemetry bounds. Zero anomaly symptoms isolated in request logs.</p>
+                    </div>
+                </section>
+
+                <!-- Smart Integrations Panel -->
+                <section class="integrations-panel glass-card">
+                    <h3 class="section-title"><i class="fa-solid fa-circle-nodes text-teal"></i> SRE Notification Hub</h3>
+                    <div class="integration-switch-list">
+                        <div class="switch-item">
+                            <div class="switch-info">
+                                <span class="sw-title"><i class="fa-brands fa-slack text-purple"></i> Slack Channel</span>
+                                <span class="sw-desc">Streams RCA to #sre-alerts</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-slack" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="switch-item">
+                            <div class="switch-info">
+                                <span class="sw-title"><i class="fa-solid fa-pager text-rose"></i> PagerDuty</span>
+                                <span class="sw-desc">Dispatches high-sev incidents</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-pagerduty" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- System Success Indicator -->
+                <section class="success-box glass-card">
+                    <h3 class="section-title"><i class="fa-solid fa-shield-halved text-green"></i> Metrics of Success</h3>
+                    <div class="metrics-grid">
+                        <div class="sm-card">
+                            <span class="sm-val">99.9%</span>
+                            <span class="sm-lbl">Uptime SLA</span>
+                        </div>
+                        <div class="sm-card">
+                            <span class="sm-val">-85%</span>
+                            <span class="sm-lbl">Alert Fatigue</span>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+
+
+            <!-- MIDDLE PANEL: TOPOLOGY & CHARTS -->
+            <main class="main-content">
+                <!-- Service Topology Graph -->
+                <section class="topology-section glass-card">
+                    <div class="topology-header">
+                        <h3 class="section-title"><i class="fa-solid fa-diagram-project text-indigo"></i> Real-time Microservice Topology Map</h3>
+                        <span class="badge-live"><span class="ping-pulse"></span> Streaming</span>
+                    </div>
+                    
+                    <div class="network-map-container" id="network-container">
+                        <svg class="network-svg" id="topology-svg"></svg>
+                        
+                        <div class="node-box gateway-node" id="node-gateway" data-service="gateway">
+                            <div class="node-icon"><i class="fa-solid fa-door-open"></i></div>
+                            <div class="node-details">
+                                <span class="node-name">Gateway</span>
+                                <span class="node-telemetry" id="node-gateway-tel">35ms | 0% err</span>
+                            </div>
+                        </div>
+                        
+                        <div class="node-box" id="node-auth-service" data-service="auth-service">
+                            <div class="node-icon"><i class="fa-solid fa-key"></i></div>
+                            <div class="node-details">
+                                <span class="node-name">Auth Service</span>
+                                <span class="node-telemetry" id="node-auth-service-tel">42ms | 0% err</span>
+                            </div>
+                        </div>
+                        
+                        <div class="node-box" id="node-payment-service" data-service="payment-service">
+                            <div class="node-icon"><i class="fa-solid fa-credit-card"></i></div>
+                            <div class="node-details">
+                                <span class="node-name">Payment Service</span>
+                                <span class="node-telemetry" id="node-payment-service-tel">55ms | 0% err</span>
+                            </div>
+                        </div>
+                        
+                        <div class="node-box" id="node-inventory-service" data-service="inventory-service">
+                            <div class="node-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+                            <div class="node-details">
+                                <span class="node-name">Inventory Service</span>
+                                <span class="node-telemetry" id="node-inventory-service-tel">28ms | 0% err</span>
+                            </div>
+                        </div>
+                        
+                        <div class="node-box" id="node-db-cluster" data-service="db-cluster">
+                            <div class="node-icon"><i class="fa-solid fa-database"></i></div>
+                            <div class="node-details">
+                                <span class="node-name">Database Cluster</span>
+                                <span class="node-telemetry" id="node-db-cluster-tel">8ms | 0% err</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Telemetry Metrics Grid -->
+                <section class="metrics-section glass-card">
+                    <h3 class="section-title"><i class="fa-solid fa-chart-line text-violet"></i> Real-time Ingestion Stream Metrics</h3>
+                    <div class="chart-container">
+                        <canvas id="telemetry-chart"></canvas>
+                    </div>
+                </section>
+            </main>
+
+            <!-- RIGHT PANEL: INCIDENTS & AI RCA -->
+            <section class="sidebar-right">
+                <!-- AI Incident Analysis Card -->
+                <div class="incident-card glass-card" id="ai-rca-card">
+                    <div class="incident-header">
+                        <div class="inc-title-wrapper">
+                            <span class="inc-status-tag" id="inc-badge">Healthy</span>
+                            <h3 id="inc-title">No Active System Failures</h3>
+                        </div>
+                        
+                        <!-- Phase 2: One-Click Mitigation Runbook Button Container -->
+                        <div id="mitigation-btn-container" style="margin-top: 12px; display: none;">
+                            <button id="btn-execute-runbook" class="runbook-btn">
+                                <i class="fa-solid fa-bolt-lightning"></i> ⚡ Execute Remediation Runbook
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="incident-body" id="inc-body">
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="fa-solid fa-circle-check text-green bounce-animation"></i></div>
+                            <h4>System Status fully Operational</h4>
+                            <p>Ingestion streams are healthy. No active anomalies clustered. Trigger an incident using the Fault Deck to see AI RCA Diagnostics.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating AI SRE Copilot Terminal Drawer -->
+                <div class="sre-terminal glass-card" id="sre-chatbot">
+                    <div class="terminal-header">
+                        <span class="terminal-title"><i class="fa-solid fa-terminal text-green"></i> AI SRE Copilot Terminal</span>
+                        <button class="terminal-toggle" id="btn-minimize-terminal"><i class="fa-solid fa-chevron-down"></i></button>
+                    </div>
+                    <div class="terminal-body" id="chat-messages">
+                        <div class="bot-msg">
+                            <p><strong>[DebugPilot AI]:</strong> Welcome, Operator. I am your active SRE assistant. Ask me anything about the system configuration or active anomalies, or ask for remediation guides.</p>
+                        </div>
+                    </div>
+                    <div class="terminal-input-row">
+                        <span class="prompt-symbol">&gt;</span>
+                        <input type="text" id="chat-input" placeholder="Ask SRE Copilot..." autocomplete="off">
+                        <button id="chat-submit"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- LOWER SECTION: LIVE INGESTION LOG STREAM -->
+        <footer class="log-stream-section glass-card">
+            <div class="log-header">
+                <div class="log-header-left">
+                    <h3 class="section-title"><i class="fa-solid fa-list-check text-violet"></i> Dynamic API Ingestion Log Stream</h3>
+                    <input type="text" id="log-search" placeholder="Filter logs..." class="log-filter-input">
+                    <select id="log-service-filter" class="log-select-filter">
+                        <option value="all">All Services</option>
+                        <option value="gateway">Gateway</option>
+                        <option value="auth-service">Auth-Service</option>
+                        <option value="payment-service">Payment-Service</option>
+                        <option value="inventory-service">Inventory-Service</option>
+                        <option value="db-cluster">DB-Cluster</option>
+                    </select>
+                </div>
+                <div class="log-header-right">
+                    <span id="log-counter" class="log-counter">0 logs received</span>
+                    <button class="log-control-btn active" id="btn-log-pause">
+                        <i class="fa-solid fa-pause"></i> <span class="btn-lbl">Pause Stream</span>
+                    </button>
+                    <button class="log-control-btn" id="btn-log-clear">
+                        <i class="fa-solid fa-trash-can"></i> <span class="btn-lbl">Clear</span>
+                    </button>
+                </div>
+            </div>
+            <div class="log-console" id="log-console-feed"></div>
+        </footer>
+    </div>
+
+    <!-- Phase 2: Trace Detail Overlay Modal Dialog -->
+    <div class="modal-backdrop" id="trace-modal" style="display: none;">
+        <div class="trace-modal-container glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-circle-nodes text-violet"></i> Distributed Span Trace Trees</h3>
+                <button class="modal-close-btn" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="trace-metadata-row">
+                    <div><strong>Trace ID:</strong> <span id="trace-meta-id" class="trace-code"></span></div>
+                    <div><strong>Client IP:</strong> <span id="trace-meta-ip" class="trace-code"></span></div>
+                </div>
+                
+                <h4 style="margin: 15px 0 10px 0; font-size: 13px;">Cascade Call Hierarchy Spans:</h4>
+                <div class="trace-tree-canvas" id="trace-tree-container">
+                    <!-- Dynamic Span Node trees render here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 2: Slack Alert block kit popups -->
+    <div id="slack-toast-container" class="slack-toast-area"></div>
+
+    <!-- Alert Sound Element -->
+    <audio id="alert-sfx" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-700.wav" preload="auto"></audio>
+
+    <!-- Custom Script Sheet -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
+
