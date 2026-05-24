@@ -263,8 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        const wsUrl = "wss://debugpilotai.onrender.com/ws";
         
         websocketAttempts++;
         console.log(`Connecting to SRE telemetry stream (Attempt ${websocketAttempts}/${MAX_WEBSOCKET_ATTEMPTS}): ${wsUrl}`);
@@ -354,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        fetch("/api/telemetry")
+        fetch("https://debugpilotai.onrender.com/api/telemetry")
         .then(res => res.json())
         .then(data => {
             // Safe filter to prevent duplicate logs in scrolling buffer
@@ -907,7 +906,7 @@ document.addEventListener("DOMContentLoaded", () => {
             injectButtons.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             
-            fetch("/api/inject-anomaly", {
+            fetch("https://debugpilotai.onrender.com/api/inject-anomaly", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ incident_type: incidentType })
@@ -925,7 +924,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnExecuteRunbook.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Executing Auto-Healing Runbook...';
         btnExecuteRunbook.disabled = true;
         
-        fetch("/api/mitigate", {
+        fetch("https://debugpilotai.onrender.com/api/mitigate", {
             method: "POST",
             headers: { "Content-Type": "application/json" }
         })
@@ -951,7 +950,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnTriggerDeploy.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Pushing Commit e93a4b7...';
         btnTriggerDeploy.disabled = true;
         
-        fetch("/api/deploy", {
+        fetch("https://debugpilotai.onrender.com/api/deploy", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -999,7 +998,7 @@ document.addEventListener("DOMContentLoaded", () => {
         chatMessages.appendChild(typingEl);
         scrollChatToBottom();
 
-        fetch("/api/copilot/chat", {
+        fetch("https://debugpilotai.onrender.com/api/copilot/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: text })

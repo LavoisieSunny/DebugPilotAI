@@ -207,9 +207,23 @@ def get_telemetry_fallback():
 
 
 # Mount the static frontend assets
-frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if os.path.exists(frontend_path):
     app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+
+@app.get("/styles.css")
+def get_css():
+    styles_file = os.path.join(frontend_path, "styles.css")
+    if os.path.exists(styles_file):
+        return FileResponse(styles_file)
+    raise HTTPException(status_code=404, detail="styles.css not found")
+
+@app.get("/app.js")
+def get_js():
+    app_js_file = os.path.join(frontend_path, "app.js")
+    if os.path.exists(app_js_file):
+        return FileResponse(app_js_file)
+    raise HTTPException(status_code=404, detail="app.js not found")
 
 @app.get("/")
 def read_root():
