@@ -64,11 +64,7 @@ Click any button in the sidebar's **Fault Injector Deck** to verify SRE monitori
 
 ---
 
-## 📝 Video Presentation Playbook
 
-A professionally formatted video presentation script is saved in the workspace to help you record a highly impressive 4-minute hackathon demo:
-* **Playbook PDF**: [DebugPilot_AI_Presentation_Script.pdf](file:///C:/Users/lavoi/.gemini/antigravity/scratch/debugpilot-ai/DebugPilot_AI_Presentation_Script.pdf)
-* Open the PDF using PowerShell: `ii DebugPilot_AI_Presentation_Script.pdf`
 
 ---
 
